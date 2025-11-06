@@ -126,11 +126,11 @@
     // Reset the form
     form.reset();
 
-    // Dispatch custom event for success
+    // Dispatch custom event for success on document
     const event = new CustomEvent('sleekcms:success', {
-      detail: { response: response }
+      detail: { response: response, form: form }
     });
-    form.dispatchEvent(event);
+    document.dispatchEvent(event);
 
     // Auto-hide success message after 5 seconds
     setTimeout(function() {
@@ -147,11 +147,11 @@
   function handleError(form, statusContainer, errorMessage) {
     showStatus(statusContainer, errorMessage, 'error');
 
-    // Dispatch custom event for error
+    // Dispatch custom event for error on document
     const event = new CustomEvent('sleekcms:error', {
-      detail: { error: errorMessage }
+      detail: { error: errorMessage, form: form }
     });
-    form.dispatchEvent(event);
+    document.dispatchEvent(event);
   }
 
   /**
@@ -212,8 +212,8 @@
               setupAjaxForm(node);
             }
             // Also check children
-            const forms = node.querySelectorAll && node.querySelectorAll('form[data-sleekcms="true"]');
-            if (forms) {
+            if (node.querySelectorAll) {
+              const forms = node.querySelectorAll('form[data-sleekcms="true"]');
               forms.forEach(setupAjaxForm);
             }
           }
