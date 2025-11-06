@@ -1,0 +1,16 @@
+{
+  "name": "ajaxed-forms",
+  "version": "1.0.0",
+  "description": "Converts any static web form with data-sleekcms=\"true\" attribute to AJAX enabled form",
+  "main": "ajaxed-forms.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["ajax", "forms", "sleekcms", "form-handler", "xhr"],
+  "author": "SleekCMS",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sleekcms/ajaxed-forms.git"
+  }
+}
