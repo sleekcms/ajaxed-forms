@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AjaxedForms Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-top: 0;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button[type="submit"]:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+        
+        button[type="submit"]:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .info {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info p {
+            margin: 5px 0;
+        }
+
+        .demo-section {
+            margin-top: 40px;
+        }
+
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AjaxedForms Demo</h1>
+        
+        <div class="info">
+            <p><strong>How it works:</strong></p>
+            <p>This form has the <code>data-sleekcms="true"</code> attribute, which automatically converts it to an AJAX-enabled form.</p>
+            <p>Try submitting the form to see the status messages in action!</p>
+        </div>
+
+        <div class="demo-section">
+            <h2>Contact Form Example</h2>
+            <form action="https://httpbin.org/post" method="POST" data-sleekcms="true">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Message:</label>
+                    <textarea id="message" name="message" required></textarea>
+                </div>
+                
+                <button type="submit">Send Message</button>
+            </form>
+        </div>
+
+        <div class="demo-section">
+            <h2>Regular Form (without AJAX)</h2>
+            <p style="color: #666; font-size: 14px;">This form doesn't have the <code>data-sleekcms="true"</code> attribute, so it will submit normally.</p>
+            <form action="https://httpbin.org/post" method="POST">
+                <div class="form-group">
+                    <label for="regular-name">Name:</label>
+                    <input type="text" id="regular-name" name="name">
+                </div>
+                
+                <button type="submit">Submit Regular Form</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Include the AjaxedForms library -->
+    <script src="ajaxed-forms.js"></script>
+
+    <!-- Optional: Listen to custom events -->
+    <script>
+        // Listen for successful form submission
+        document.addEventListener('sleekcms:success', function(event) {
+            console.log('Form submitted successfully!', event.detail);
+        });
+
+        // Listen for form submission errors
+        document.addEventListener('sleekcms:error', function(event) {
+            console.error('Form submission failed!', event.detail);
+        });
+    </script>
+</body>
+</html>
