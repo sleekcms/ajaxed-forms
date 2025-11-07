@@ -3,7 +3,7 @@
 [![CI Tests](https://github.com/sleekcms/ajaxed-forms/actions/workflows/ci.yml/badge.svg)](https://github.com/sleekcms/ajaxed-forms/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@sleekcms/ajaxed-forms.svg)](https://www.npmjs.com/package/@sleekcms/ajaxed-forms)
 
-A lightweight JavaScript library that converts static HTML forms into AJAX-enabled forms for SleekCMS. Simply add a `data-sleekcms` attribute to your form and this script handles the rest.
+A lightweight JavaScript library that converts static HTML forms into AJAX-enabled forms. Built for SleekCMS but will work for any endpoint. Simply add a `data-sleekcms` attribute to your form and this script handles the rest.
 
 ## Features
 
