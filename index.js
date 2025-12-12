@@ -29,7 +29,7 @@
         }
       }
       let method = form.method || "POST";
-      if (action.match(/sleekcms\.com/)) method = "POST";
+      if (action.match(/form\.sleekcms\./)) method = "POST";
       else method = method.toUpperCase();
 
       try {
