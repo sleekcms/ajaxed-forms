@@ -1,6 +1,6 @@
 {
   "name": "@sleekcms/ajaxed-forms",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A lightweight JavaScript library that converts static HTML forms into AJAX-enabled forms for SleekCMS. Simply add a data-sleekcms attribute to your form and this script handles the rest.",
   "main": "index.js",
   "scripts": {

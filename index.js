@@ -28,10 +28,13 @@
           return;
         }
       }
+      let method = form.method || "POST";
+      if (action.match(/sleekcms\.com/)) method = "POST";
+      else method = method.toUpperCase();
 
       try {
         const res = await fetch(action, {
-          method: form.method || "POST",
+          method,
           body: formData,
         });
 

@@ -171,7 +171,7 @@ describe('SleekCMS AJAX Forms', () => {
       expect(global.fetch).toHaveBeenCalledWith(
         'https://example.com/submit',
         expect.objectContaining({
-          method: 'post', // DOM returns lowercase method
+          method: 'POST', // DOM returns lowercase method
           body: expect.any(FormData)
         })
       );
@@ -580,7 +580,7 @@ describe('SleekCMS AJAX Forms', () => {
       expect(global.fetch).toHaveBeenCalledWith(
         'https://example.com/submit',
         expect.objectContaining({
-          method: 'get' // JSDOM doesn't support custom methods like PUT, defaults to get
+          method: 'GET' // JSDOM doesn't support custom methods like PUT, defaults to get
         })
       );
     });
