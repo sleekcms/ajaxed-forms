@@ -11,7 +11,7 @@ A lightweight JavaScript library that converts static HTML forms into AJAX-enabl
 - 📦 Tiny footprint (~2KB)
 - 🔄 Automatic AJAX form submission
 - 🎯 Dynamic form detection with MutationObserver
-- ✅ Success/error message display
+- ✅ Loading overlay with success/error message, dismissable to resubmit
 - 🔒 Works with SleekCMS form endpoints
 - 🧪 100% test coverage
 
@@ -80,10 +80,16 @@ https://form.sleekcms.com/[your-form-id]
 
 1. The script detects all forms with the `data-sleekcms` attribute
 2. Automatically intercepts form submission and prevents default behavior
-3. Submits form data via AJAX using the Fetch API
-4. Displays submission status (success/error) below the form
-5. Resets the form on successful submission
-6. Watches for dynamically added forms using MutationObserver
+3. Shows a loading overlay with a spinner over the entire form area
+4. Submits form data via AJAX using the Fetch API
+5. Displays the submission status (success/error) in the overlay, keeping it open
+6. The user closes the overlay (Close button) to submit again; submits are ignored while it's open
+7. Resets the form on successful submission
+8. Watches for dynamically added forms using MutationObserver
+
+The overlay positions itself over the form, so the form is given `position: relative` automatically unless it already has a non-static position.
+
+For forms that fit on screen the spinner/message panel is centered over the form. When the form is taller than the viewport (or scrolled out of view), the panel instead anchors to the center of the viewport as a floating card, so it stays visible while the user scrolls.
 
 ## Browser Support
 
@@ -123,7 +129,7 @@ The library has comprehensive test coverage including:
 - Multiple action URL configurations
 - Edge cases and browser compatibility
 
-Current coverage: **100% statements, 100% functions, 100% lines, 94.44% branches**
+Current coverage: **100% statements, 100% functions, 100% lines, 89.09% branches**
 
 ## API
 

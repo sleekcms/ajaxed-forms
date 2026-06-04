@@ -75,11 +75,11 @@ describe('SleekCMS AJAX Forms', () => {
       await waitForTimeout();
 
       const form = document.querySelector('form');
-      const messageBoxes = form.querySelectorAll('div');
-      expect(messageBoxes.length).toBe(1);
+      const overlays = form.querySelectorAll('.sleekcms-overlay');
+      expect(overlays.length).toBe(1);
     });
 
-    test('should create message box element', async () => {
+    test('should create a hidden overlay with spinner, message and close button', async () => {
       document.body.innerHTML = `
         <form data-sleekcms="test-form-123">
           <input type="text" name="email" />
@@ -90,11 +90,14 @@ describe('SleekCMS AJAX Forms', () => {
       await waitForTimeout();
 
       const form = document.querySelector('form');
-      const messageBox = form.querySelector('div');
-      
-      expect(messageBox).toBeTruthy();
-      expect(messageBox.style.marginTop).toBe('8px');
-      expect(messageBox.style.fontFamily).toBe('sans-serif');
+      const overlay = form.querySelector('.sleekcms-overlay');
+
+      expect(overlay).toBeTruthy();
+      // Overlay stays hidden until the form is submitted.
+      expect(overlay.style.display).toBe('none');
+      expect(overlay.querySelector('.sleekcms-spinner')).toBeTruthy();
+      expect(overlay.querySelector('.sleekcms-message')).toBeTruthy();
+      expect(overlay.querySelector('.sleekcms-close')).toBeTruthy();
     });
   });
 
@@ -246,7 +249,7 @@ describe('SleekCMS AJAX Forms', () => {
 
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      const messageBox = form.querySelector('div');
+      const messageBox = form.querySelector('.sleekcms-message');
       expect(messageBox.textContent).toContain('Error: No action URL specified');
       expect(messageBox.style.color).toBe('red');
       expect(global.fetch).not.toHaveBeenCalled();
@@ -275,7 +278,7 @@ describe('SleekCMS AJAX Forms', () => {
 
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      const messageBox = form.querySelector('div');
+      const messageBox = form.querySelector('.sleekcms-message');
       expect(messageBox.textContent).toBe('Form submitted successfully!');
       expect(messageBox.style.color).toBe('green');
     });
@@ -301,7 +304,7 @@ describe('SleekCMS AJAX Forms', () => {
 
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      const messageBox = form.querySelector('div');
+      const messageBox = form.querySelector('.sleekcms-message');
       expect(messageBox.textContent).toBe('Form submitted successfully!');
       expect(messageBox.style.color).toBe('green');
     });
@@ -362,7 +365,7 @@ describe('SleekCMS AJAX Forms', () => {
 
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      const messageBox = form.querySelector('div');
+      const messageBox = form.querySelector('.sleekcms-message');
       expect(messageBox.textContent).toBe('Thank you for your submission!');
       expect(messageBox.style.color).toBe('green');
     });
@@ -390,7 +393,7 @@ describe('SleekCMS AJAX Forms', () => {
 
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      const messageBox = form.querySelector('div');
+      const messageBox = form.querySelector('.sleekcms-message');
       expect(messageBox.textContent).toBe('Invalid email address');
       expect(messageBox.style.color).toBe('red');
     });
@@ -416,7 +419,7 @@ describe('SleekCMS AJAX Forms', () => {
 
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      const messageBox = form.querySelector('div');
+      const messageBox = form.querySelector('.sleekcms-message');
       expect(messageBox.textContent).toBe('Something went wrong.');
       expect(messageBox.style.color).toBe('red');
     });
@@ -465,7 +468,7 @@ describe('SleekCMS AJAX Forms', () => {
 
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      const messageBox = form.querySelector('div');
+      const messageBox = form.querySelector('.sleekcms-message');
       expect(messageBox.textContent).toBe('Network error. Please try again.');
       expect(messageBox.style.color).toBe('red');
     });
@@ -490,7 +493,7 @@ describe('SleekCMS AJAX Forms', () => {
       await waitForTimeout();
 
       const form = document.querySelector('form');
-      const messageBox = form.querySelector('div');
+      const messageBox = form.querySelector('.sleekcms-message');
 
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
       
@@ -532,6 +535,158 @@ describe('SleekCMS AJAX Forms', () => {
       form.dispatchEvent(submitEvent);
 
       expect(submitEvent.defaultPrevented).toBe(true);
+    });
+  });
+
+  describe('Overlay UX', () => {
+    const submit = (form) =>
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    const tick = (ms = 20) => new Promise(resolve => setTimeout(resolve, ms));
+
+    const setupForm = async () => {
+      document.body.innerHTML = `
+        <form data-sleekcms="test-abc" action="https://example.com/submit">
+          <input type="text" name="email" value="test@example.com" />
+        </form>
+      `;
+      loadScript();
+      await waitForTimeout();
+      const form = document.querySelector('form');
+      return {
+        form,
+        overlay: form.querySelector('.sleekcms-overlay'),
+        card: form.querySelector('.sleekcms-card'),
+        spinner: form.querySelector('.sleekcms-spinner'),
+        message: form.querySelector('.sleekcms-message'),
+        closeBtn: form.querySelector('.sleekcms-close'),
+      };
+    };
+
+    const okJson = () => ({
+      ok: true,
+      headers: new Headers({ 'content-type': 'application/json' }),
+      json: async () => ({ message: 'Done!' }),
+    });
+
+    test('shows the overlay with a spinner while submitting', async () => {
+      let resolvePromise;
+      global.fetch.mockReturnValueOnce(new Promise(r => (resolvePromise = r)));
+
+      const { form, overlay, spinner, closeBtn } = await setupForm();
+      expect(overlay.style.display).toBe('none');
+
+      submit(form);
+      await tick(10);
+
+      expect(overlay.style.display).toBe('flex');
+      expect(spinner.style.display).not.toBe('none');
+      expect(closeBtn.style.display).toBe('none');
+
+      resolvePromise({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ message: 'Done!' }),
+      });
+      await tick(50);
+    });
+
+    test('keeps the overlay open with the result and a close button', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ message: 'Thanks!' }),
+      });
+
+      const { form, overlay, spinner, message, closeBtn } = await setupForm();
+      submit(form);
+      await tick(50);
+
+      expect(overlay.style.display).toBe('flex');
+      expect(spinner.style.display).toBe('none');
+      expect(closeBtn.style.display).not.toBe('none');
+      expect(message.textContent).toBe('Thanks!');
+      expect(message.style.color).toBe('green');
+    });
+
+    test('closing the overlay hides it and allows a resubmit', async () => {
+      global.fetch.mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ message: 'Thanks!' }),
+      });
+
+      const { form, overlay, closeBtn } = await setupForm();
+
+      submit(form);
+      await tick(50);
+      expect(overlay.style.display).toBe('flex');
+
+      closeBtn.click();
+      expect(overlay.style.display).toBe('none');
+
+      submit(form);
+      await tick(50);
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(overlay.style.display).toBe('flex');
+    });
+
+    test('ignores extra submits while the overlay is open', async () => {
+      let resolvePromise;
+      global.fetch.mockReturnValueOnce(new Promise(r => (resolvePromise = r)));
+
+      const { form } = await setupForm();
+      submit(form);
+      await tick(10);
+      submit(form); // second submit while loading — should be ignored
+      await tick(10);
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+
+      resolvePromise({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ message: 'Done!' }),
+      });
+      await tick(50);
+    });
+
+    test('keeps the panel centered in the form when it fits on screen', async () => {
+      global.fetch.mockResolvedValueOnce(okJson());
+
+      const { form, card } = await setupForm();
+      // A short form, fully within an 800px-tall viewport.
+      form.getBoundingClientRect = () => ({ top: 100, left: 0, width: 600, height: 300, right: 600, bottom: 400 });
+
+      submit(form);
+      await tick(50);
+
+      expect(card.style.position).toBe('static');
+    });
+
+    test('anchors the panel to the viewport when the form is taller than the screen', async () => {
+      global.fetch.mockResolvedValueOnce(okJson());
+
+      const { form, card } = await setupForm();
+      // A form far taller than the viewport (jsdom default innerHeight is 768).
+      form.getBoundingClientRect = () => ({ top: 0, left: 0, width: 600, height: 5000, right: 600, bottom: 5000 });
+
+      submit(form);
+      await tick(50);
+
+      expect(card.style.position).toBe('fixed');
+    });
+
+    test('anchors the panel to the viewport when the form is scrolled out of view', async () => {
+      global.fetch.mockResolvedValueOnce(okJson());
+
+      const { form, card } = await setupForm();
+      // Short form, but its centre sits below the fold.
+      form.getBoundingClientRect = () => ({ top: 1200, left: 0, width: 600, height: 300, right: 600, bottom: 1500 });
+
+      submit(form);
+      await tick(50);
+
+      expect(card.style.position).toBe('fixed');
     });
   });
 
@@ -628,7 +783,7 @@ describe('SleekCMS AJAX Forms', () => {
 
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      const messageBox = form.querySelector('div');
+      const messageBox = form.querySelector('.sleekcms-message');
       expect(messageBox.textContent).toBe('Form submitted successfully!');
     });
   });

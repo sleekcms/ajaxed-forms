@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ajaxed-forms · local demo</title>
+  <style>
+    body { font-family: sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; color: #222; }
+    h1 { font-size: 1.4rem; }
+    section { border: 1px solid #ddd; border-radius: 8px; padding: 16px 20px; margin: 20px 0; }
+    h2 { font-size: 1rem; margin-top: 0; }
+    input, textarea { display: block; width: 100%; box-sizing: border-box; margin: 6px 0; padding: 8px; }
+    button { padding: 8px 16px; cursor: pointer; }
+    .note { font-size: 0.85rem; color: #666; }
+    .banner { background: #fffae6; border: 1px solid #f0d000; padding: 8px 12px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>ajaxed-forms — local demo</h1>
+  <p class="banner">⏱️ The script attaches handlers <strong>2 seconds after load</strong>. Wait a beat before submitting, or the form will post normally.</p>
+
+  <!-- 1. SUCCESS: custom action to a public echo endpoint (no backend needed).
+       method="post" is required — fetch throws on a GET with a body. -->
+  <section>
+    <h2>1. Custom action → success</h2>
+    <p class="note">Posts to postman-echo.com (returns 200). Expect a loading overlay, then a green message in the overlay with a Close button. Closing it reveals the reset form, ready to resubmit.</p>
+    <form data-sleekcms="true" action="https://postman-echo.com/post" method="post">
+      <input type="text" name="name" placeholder="Your name" required />
+      <input type="email" name="email" placeholder="you@example.com" required />
+      <button type="submit">Submit</button>
+    </form>
+  </section>
+
+  <!-- 2. ERROR: invalid data-sleekcms value (no hyphen) and no action → validation error.
+       Fully local, no network call. -->
+  <section>
+    <h2>2. No action URL → error message</h2>
+    <p class="note">data-sleekcms="invalid" doesn't match the id format and there's no action. Expect a red error.</p>
+    <form data-sleekcms="invalid">
+      <input type="text" name="message" placeholder="Say something" />
+      <button type="submit">Submit</button>
+    </form>
+  </section>
+
+  <!-- 3. SleekCMS id form: builds https://form.sleekcms.com/<id>.
+       Replace with a real form id to test the live endpoint. -->
+  <section>
+    <h2>3. SleekCMS form id → constructed URL</h2>
+    <p class="note">data-sleekcms="contact-abc123" posts to https://form.sleekcms.com/contact-abc123. With a fake id it'll show an error — swap in your real id.</p>
+    <form data-sleekcms="contact-abc123">
+      <input type="text" name="name" placeholder="Your name" />
+      <button type="submit">Submit</button>
+    </form>
+  </section>
+
+  <!-- 4. Dynamic form: injected after load to prove the MutationObserver picks it up. -->
+  <section>
+    <h2>4. Dynamically added form (MutationObserver)</h2>
+    <p class="note">Click to inject a new form. The observer should attach the AJAX handler automatically.</p>
+    <button id="inject">Inject a form</button>
+    <div id="slot"></div>
+  </section>
+
+  <!-- 5. Tall form: taller than the viewport, so the overlay panel anchors to
+       the viewport instead of centering in the (off-screen) middle of the form. -->
+  <section>
+    <h2>5. Tall form → viewport-anchored panel</h2>
+    <p class="note">This form is intentionally taller than the screen. Scroll down, submit, and the loading/result panel stays centered in the viewport (a floating card) instead of disappearing into the middle of the form.</p>
+    <form data-sleekcms="true" action="https://postman-echo.com/post" method="post">
+      <input type="text" name="field1" placeholder="Field 1" />
+      <input type="text" name="field2" placeholder="Field 2" />
+      <textarea name="big" rows="30" placeholder="A very tall field to push the page height..."></textarea>
+      <input type="text" name="field3" placeholder="Field 3 (near the bottom)" />
+      <button type="submit">Submit tall form</button>
+    </form>
+  </section>
+
+  <script>
+    document.getElementById("inject").addEventListener("click", () => {
+      document.getElementById("slot").innerHTML = `
+        <form data-sleekcms="true" action="https://postman-echo.com/post" method="post">
+          <input type="text" name="dynamic" placeholder="Injected form" />
+          <button type="submit">Submit injected</button>
+        </form>`;
+    });
+  </script>
+
+  <!-- The library under test -->
+  <script src="index.js"></script>
+</body>
+</html>
